@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de configuraciones -->
+    <record id="vertical_hospital_settings_form_view" model="ir.ui.view">
+        <field name="name">vertical.hospital.settings.form.view</field>
+        <field name="model">vertical_hospital.settings</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="webservice_endpoint"/>
+                </group>
+                <footer>
+                    <button string="Guardar" type="object" name="set_values" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hospital_settings" model="ir.actions.act_window">
+        <field name="name">Hospital Configuration</field>
+        <field name="res_model">vertical_hospital.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+
+    <menuitem id="menu_hospital_settings"
+        name="Hospital"
+        action="action_hospital_settings"
+        parent="base.menu_administration"
+    />
+
+</odoo>

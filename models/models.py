@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
-from odoo import models, fields, api
+from odoo import _, models, fields, api
 from odoo.api import ValuesType
 from odoo.exceptions import ValidationError
 
@@ -128,3 +128,31 @@ class Tratamiento(models.Model):
                 )
 
         return super(Tratamiento, self).create(vals)
+
+# class Webservices(models.Model):
+#     _name = "vertical_hospital.webservices"
+#     _description = "Webservices de Vertical Hospital"
+
+#     endpoint = fields.Char(string="Endpoint", required=True, default="/pacientes/consulta/")
+
+#     def search(self, args=None, offset=0, limit=1, order=None, count=False):
+#         return self.env["vertical_hospital.paciente"].search(args, offset, limit, order, count)
+
+
+class Configuracion(models.TransientModel):
+    _name = "vertical_hospital.settings"
+    _description = "Configuración de Vertical Hospital"
+    _inherit = "res.config.settings"
+
+    webservice_endpoint = fields.Char("Webservice Endpoint", readonly=False, config_parameter='vertical_hospital.webservice.endpoint')
+
+    def set_values(self):
+        res = super(Configuracion, self).set_values()
+        self.env['ir.config_parameter'].sudo().set_param('vertical_hospital.webservice.endpoint', self.webservice_endpoint)
+        return res
+
+    def get_values(self):
+        res = super(Configuracion, self).get_values()
+        webservice_endpoint = self.env['ir.config_parameter'].sudo().get_param('vertical_hospital.webservice.endpoint')
+        res.update(webservice_endpoint=webservice_endpoint)
+        return res

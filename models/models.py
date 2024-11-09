@@ -75,6 +75,7 @@ class Paciente(models.Model):
     def check_rnc_format(self):
         """Validación para que el RNC solo acepte el formato correcto"""
         print("check_rnc_format", self.rnc)
+        rnc_clean = ""
         for record in self:
             # Eliminar cualquier caracter no numérico
             rnc_clean = re.sub(r"\D", "", record.rnc)
@@ -84,8 +85,10 @@ class Paciente(models.Model):
                 raise ValidationError(
                     "El RNC debe tener el formato correcto: 00000000000"
                 )
+            print("rnc_clean 1", rnc_clean)
 
-        self.rnc = re.sub(r"(\d{3})(\d{7})(\d{1})", r"\1-\2-\3", rnc_clean)
+        # rnc_clean = re.sub(r"(\d{3})(\d{7})(\d{1})", r"\1-\2-\3", rnc_clean)
+
 
 class Tratamiento(models.Model):
     # _codigo = "vertical_hospital.tratamiento.codigo"

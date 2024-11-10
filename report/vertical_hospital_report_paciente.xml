@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="paperformat_id" model="report.paperformat">
+            <field name="name">Formato Vertical</field>
+            <field name="default" eval="True"/>
+            <field name="page_width" eval="210"/>
+            <field name="page_height" eval="297"/>
+        </record>
+
+        <template id="report_paciente_template" >
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="header">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <img t-if="o.company_id.logo" t-att-src="'data:image/png;base64,%s' % to_text(o.company_id.logo)" style="max-height: 130px;"/>
+                                    <p style="font-size: 10vw">
+                                        <span t-esc="o.company_id.name"/> <br/>
+                                        <span t-esc="o.company_id.phone"/> <br/>
+                                        <span t-esc="o.company_id.street"/> <br/>
+                                        <span t-esc="o.company_id.city"/> <br/>
+                                    </p>
+                                </div>
+                                <div class="col-xs-8 text-right">
+                                    <h2>Reporte de Paciente</h2>
+                                    <p>Fecha: <span t-esc="time.strftime('%d/%m/%Y')"/></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="page">
+                            <h2>Detalles</h2>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th>Secuencia</th>
+                                        <th>Nombre Completo</th>
+                                        <th>RNC</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="docs" t-as="paciente">
+                                        <td><span t-esc="paciente.secuencia"/></td>
+                                        <td><span t-esc="paciente.nombre_completo"/></td>
+                                        <td><span t-esc="paciente.rnc"/></td>
+                                        <td><span t-esc="paciente.estado"/></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4">Total de Pacientes: <span t-esc="len(docs)"/></td>
+                                    </tr>
+                                </tfoot>    
+                            </table>
+                        </div>
+                        <div class="footer">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <p>Este reporte fue creado por <span t-esc="o.create_uid.name"/></p>
+                                </div>
+                                <div class="col-xs-8 text-right">
+                                    <p>Fecha de creación: <span t-esc="o.create_date"/></p>
+                                </div>
+                            </div>
+                        </div>
+                    </t>    
+                </t>
+            </t>
+        </template>
+
+        <report 
+            id="report_paciente_list_hospital"
+            model="vertical_hospital.paciente"
+            string="Reporte de Pacientes"
+            report_type="qweb-pdf"
+            name="vertical_hospital.report_paciente_template"
+            file="vertical_hospital.report_paciente_template"
+            paperformat_id="paperformat_id"
+            />
+    </data>
+</odoo>

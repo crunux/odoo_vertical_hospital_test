@@ -1,12 +1,14 @@
 <odoo>
     <data>
-
       <!-- Vista de la tabla de los Pacientes  -->
-      <record id="paciente_tree_view" model="ir.ui.view">
-        <field name="name">paciente.tree.view</field>
+      <record id="paciente_list_view" model="ir.ui.view">
+        <field name="name">paciente.list.view</field>
         <field name="model">vertical_hospital.paciente</field>
         <field name="arch" type="xml">
-          <list>
+          <list string="Lista de Pacientes">
+            <header>
+              <button name="action_print_report" type="object" string="Imprimir Reporte" class="oe_highlight"/>
+            </header>
             <field name="secuencia"/>
             <field name="nombre_completo"/>
             <field name="rnc"/>
@@ -45,6 +47,7 @@
           </form>
         </field>
       </record>
+      
 
       
       <!-- Accion para mostrar el Formulario y la Lista de los pacientes  -->
@@ -52,6 +55,17 @@
         <field name="name">Paciente</field>
         <field name="res_model">vertical_hospital.paciente</field>
         <field name="view_mode">list,form</field>
+      </record>
+
+       <!-- Secuencia para la secuencia de codigo de los Pacientes PA000000 -->
+      <record id="secuancia_vertical_hospital_paciente" model="ir.sequence">
+        <field name="name">Paciente PA</field>
+        <field name="code">paciente.pa</field>
+        <field name="active">TRUE</field>
+        <field name="prefix">PA</field>
+        <field name="padding">6</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
       </record>
 
 
@@ -70,7 +84,7 @@
       
       <!-- Formulario para los Tratamiento -->
       <record id="tratamiento_form_view" model="ir.ui.view">
-        <field name="name">paciente.form.view</field>
+        <field name="name">tratamiento.form.view</field>
         <field name="model">vertical_hospital.tratamiento</field>
         <field name="arch" type="xml">
           <form>
@@ -83,23 +97,13 @@
         </field>
       </record>
 
+
       <!-- Accion para mostrar el Formulario y la lista de los Tratamientos  -->
 
       <record id="tratamiento_action" model="ir.actions.act_window">
         <field name="name">Tratamiento</field>
         <field name="res_model">vertical_hospital.tratamiento</field>
         <field name="view_mode">list,form</field>
-      </record>
-
-      <!-- Secuencia para la secuencia de codigo de los Pacientes PA000000 -->
-      <record id="secuancia_vertical_hospital_paciente" model="ir.sequence">
-        <field name="name">Paciente PA</field>
-        <field name="code">paciente.pa</field>
-        <field name="active">TRUE</field>
-        <field name="prefix">PA</field>
-        <field name="padding">6</field>
-        <field name="number_next">1</field>
-        <field name="number_increment">1</field>
       </record>
 
       <!-- Secuencia para el codigo de los Tratamientos TR000000 -->
@@ -112,24 +116,14 @@
         <field name="number_next">1</field>
         <field name="number_increment">1</field>
       </record>
+      
+      <!-- Menu del Modulo -->
 
       <!-- Item de la Principal del menu del Modulo -->
       <menuitem
         id="vertical_hospital_menu"
         name="Vertical Hospital"
       />
-
-      <!-- <menuitem
-        id="paciente_menu"
-        name="Paciente"
-        parent="vertical_hospital_menu"
-      />
-
-      <menuitem
-        id="tratamiento_menu"
-        name="Tratamiento"
-        parent="vertical_hospital_menu"
-      /> -->
 
       <!-- Item de la seccion de los Pacientes que esta heredando del menu principal  -->
       <menuitem
@@ -147,5 +141,7 @@
         parent="vertical_hospital_menu"
         action="tratamiento_action"
       />
+      
+
     </data>
 </odoo>

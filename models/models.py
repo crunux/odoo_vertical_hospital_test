@@ -38,6 +38,15 @@ class Paciente(models.Model):
         selection=ESTADOS, string="Estado", default=ESTADOS[0][0], tracking=True
     )
 
+    company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id, string='Company')
+
+    def action_print_report(self):
+        active_ids = self.env.context.get('active_ids', [])
+        if not active_ids:
+            return
+        pacientes = self.browse(active_ids)
+        return self.env.ref('vertical_hospital.report_paciente_list_hospital').report_action(pacientes)
+
     @api.model_create_single
     def create(self, vals):
         if vals.get("secuencia", "Nuevo") == "Nuevo":
@@ -88,7 +97,12 @@ class Paciente(models.Model):
             print("rnc_clean 1", rnc_clean)
 
         # rnc_clean = re.sub(r"(\d{3})(\d{7})(\d{1})", r"\1-\2-\3", rnc_clean)
-
+        # def _get_report_values(self, docids, data=None):
+        #     pacientes = self.env['vertical_hospital.paciente'].browse(docids).report_paciente_template()
+        #     return {
+        #         'doc_ids': docids,
+        #         'docs': pacientes,
+        #     }
 
 class Tratamiento(models.Model):
     # _codigo = "vertical_hospital.tratamiento.codigo"
@@ -106,9 +120,6 @@ class Tratamiento(models.Model):
     name = fields.Char(string="Nombre del Tratamiento", required=True)
     medico_tratante = fields.Char(string="Médico tratante")
     descripcion = fields.Text(string="Descripción")
-    # secuencia_paciente = fields.Many2many(
-    #     "vertical_hospital.paciente", string="Secuencia del paciente"
-    # )
 
     @api.model_create_single
     def create(self, vals) -> ValuesType:
@@ -129,15 +140,16 @@ class Tratamiento(models.Model):
 
         return super(Tratamiento, self).create(vals)
 
-# class Webservices(models.Model):
-#     _name = "vertical_hospital.webservices"
-#     _description = "Webservices de Vertical Hospital"
+class ReportPaciente(models.AbstractModel):
+    _name = 'report.vertical_hospital.report_paciente_template'
 
-#     endpoint = fields.Char(string="Endpoint", required=True, default="/pacientes/consulta/")
-
-#     def search(self, args=None, offset=0, limit=1, order=None, count=False):
-#         return self.env["vertical_hospital.paciente"].search(args, offset, limit, order, count)
-
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        pacientes = self.env['vertical_hospital.paciente'].browse(docids)
+        return {
+            'doc_ids': docids,
+            'docs': pacientes,
+        }
 
 class Configuracion(models.TransientModel):
     _name = "vertical_hospital.settings"

@@ -13,7 +13,7 @@ class VerticalHospital(http.Controller):
     def index(self, **kw):
         return "Hola, mundo"
 
-
+# endpoint web server by params secuencia
 class Pacientes(http.Controller):
     @http.route(
         "/pacientes/consulta/<secuencia>",

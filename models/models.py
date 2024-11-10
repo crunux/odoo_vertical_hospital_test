@@ -5,11 +5,14 @@ from odoo import _, models, fields, api
 from odoo.api import ValuesType
 from odoo.exceptions import ValidationError
 
+# state of a paciente
 ESTADOS = [
     ("alta", "Alta"),
     ("baja", "Baja"),
     ("borrador", "Borrador"),
 ]
+
+# Model of Paciente
 class Paciente(models.Model):
     _name = "vertical_hospital.paciente"
     _description = "Paciente de un hospital"
@@ -25,7 +28,7 @@ class Paciente(models.Model):
     )
     nombre_completo = fields.Char(string="Nombre y apellido", required=True)
     rnc = fields.Char(
-        string="RNC", required=True, size=15, help="000-0000000-0", tracking=True
+        string="RNC", required=True, size=15, help="00000000000", tracking=True
     )
     tratamiento_id = fields.Many2many(
         "vertical_hospital.tratamiento",
@@ -40,6 +43,7 @@ class Paciente(models.Model):
 
     company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id, string='Company')
 
+    # Méthod to report print
     def action_print_report(self):
         active_ids = self.env.context.get('active_ids', [])
         if not active_ids:
@@ -47,6 +51,7 @@ class Paciente(models.Model):
         pacientes = self.browse(active_ids)
         return self.env.ref('vertical_hospital.report_paciente_list_hospital').report_action(pacientes)
 
+    # # method to when create a new record to auto generate a code and validate state
     @api.model_create_single
     def create(self, vals):
         if vals.get("secuencia", "Nuevo") == "Nuevo":
@@ -64,6 +69,7 @@ class Paciente(models.Model):
             raise ValueError("Invalid value for estado: %s" % vals["estado"])
         return super(Paciente, self).write(vals)
 
+    # method to when create a multi record to auto generate a code and validate state
     @api.model_create_multi
     def create_multi(self, vals):
         for val in vals:
@@ -75,11 +81,13 @@ class Paciente(models.Model):
                 raise ValueError("Invalid value for estado: %s" % val.get("estado"))
         return super(Paciente, self).write(vals)
 
+    # method to when update a record
     @api.onchange()
     def write(self, vals):
         vals["fecha_de_actualizacion"] = fields.Datetime.now()
         return super(Paciente, self).write(vals)
 
+    # method to validate the RNC
     @api.constrains("rnc")
     def check_rnc_format(self):
         """Validación para que el RNC solo acepte el formato correcto"""
@@ -94,20 +102,11 @@ class Paciente(models.Model):
                 raise ValidationError(
                     "El RNC debe tener el formato correcto: 00000000000"
                 )
-            print("rnc_clean 1", rnc_clean)
 
-        # rnc_clean = re.sub(r"(\d{3})(\d{7})(\d{1})", r"\1-\2-\3", rnc_clean)
-        # def _get_report_values(self, docids, data=None):
-        #     pacientes = self.env['vertical_hospital.paciente'].browse(docids).report_paciente_template()
-        #     return {
-        #         'doc_ids': docids,
-        #         'docs': pacientes,
-        #     }
 
+# Model of Tratamiento
 class Tratamiento(models.Model):
-    # _codigo = "vertical_hospital.tratamiento.codigo"
     _name = "vertical_hospital.tratamiento"
-    # _medico_tratante = "vertical_hospital.tratamiento.medico_tratante"
     _description = "Tratamiento de un paciente"
 
     codigo = fields.Char(
@@ -121,6 +120,7 @@ class Tratamiento(models.Model):
     medico_tratante = fields.Char(string="Médico tratante")
     descripcion = fields.Text(string="Descripción")
 
+    # method to when create a new record to auto generate a code and validate state
     @api.model_create_single
     def create(self, vals) -> ValuesType:
         if vals.get("codigo", "Codigo") == "Codigo":
@@ -129,6 +129,7 @@ class Tratamiento(models.Model):
             )
         return super(Tratamiento, self).create(vals)
 
+    # method to when create a multi record to auto generate a code and validate state
     @api.model_create_multi
     def create_multi(self, vals):
         for val in vals:
@@ -151,6 +152,7 @@ class ReportPaciente(models.AbstractModel):
             'docs': pacientes,
         }
 
+# Model of Configuracion
 class Configuracion(models.TransientModel):
     _name = "vertical_hospital.settings"
     _description = "Configuración de Vertical Hospital"
@@ -158,11 +160,13 @@ class Configuracion(models.TransientModel):
 
     webservice_endpoint = fields.Char("Webservice Endpoint", readonly=False, config_parameter='vertical_hospital.webservice.endpoint')
 
+    # method to save the configuration
     def set_values(self):
         res = super(Configuracion, self).set_values()
         self.env['ir.config_parameter'].sudo().set_param('vertical_hospital.webservice.endpoint', self.webservice_endpoint)
         return res
 
+    # method to get the configuration
     def get_values(self):
         res = super(Configuracion, self).get_values()
         webservice_endpoint = self.env['ir.config_parameter'].sudo().get_param('vertical_hospital.webservice.endpoint')
